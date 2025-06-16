@@ -20,9 +20,6 @@ const char * const logPrefix[]={"[error ]:",
                                 "[ info ]:",
                                 "[ data ]:",
                                 "unknown: "};
-const char * const task2comp={"[status]:task2blabla"};
-const char * const task1comp={"[ data ]:task1belbel"};
-
 
 /** @brief: function to place a message in a send queue
  *  @param: str - pointer to a data to place in a queue
