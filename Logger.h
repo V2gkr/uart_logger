@@ -6,7 +6,9 @@
 */
 #include <stdint.h>
 
-typedef enum{
+#define QUEUE_MAX_SIZE 20
+
+typedef enum __attribute__((packed)){
   LOG_ERROR=0,
   LOG_STATUS=1,
   LOG_INFO=2,
@@ -18,6 +20,7 @@ typedef enum{
 typedef struct{
   LogType type;
   uint8_t size;
+  uint8_t payload[QUEUE_MAX_SIZE];
 }LogDesctiptor;
 
 /** @brief: function copies data to local buffer , transmission is delayed */
