@@ -10,9 +10,6 @@
 /* transmission buffer , non circular*/
 uint8_t TransmitBuf[40];
 
-volatile uint8_t task1msgcount=0;
-volatile uint8_t task2msgcount=0;
-
 extern osMutexId_t LoggerMutexHandle;
 extern osMessageQueueId_t LoggerQueueHandle;
 extern osSemaphoreId_t LoggerSemHandle;
@@ -63,12 +60,6 @@ void LoggerTransmit(void){
         osMessageQueueGet(LoggerQueueHandle,&msg,NULL,0);
         memcpy(TransmitBuf,logPrefix[msg.type],PREFIX_SIZE);
         memcpy((TransmitBuf+PREFIX_SIZE),&msg.payload,msg.size);
-        if(memcmp(TransmitBuf,task1comp,20)!=0 && msg.type==LOG_DATA){
-          task1msgcount++;
-        }
-        if(memcmp(TransmitBuf,task2comp,20)!=0 && msg.type==LOG_STATUS){
-          task2msgcount++;
-        }
         BSP_LoggerTransmit(TransmitBuf,PREFIX_SIZE+msg.size);
         osSemaphoreRelease(LoggerSemHandle);
         osMutexRelease(LoggerMutexHandle);

@@ -4,13 +4,9 @@
 extern UART_HandleTypeDef huart2;
 extern osSemaphoreId_t LoggerSemHandle;
 
-volatile uint8_t dma_error_count=0;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
   if(huart==&huart2){
-    if(DMA1_Channel1->CNDTR!=0){
-      dma_error_count++;
-    }
     osSemaphoreRelease(LoggerSemHandle);
   }
 }
