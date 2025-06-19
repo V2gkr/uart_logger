@@ -10,7 +10,7 @@
 /* transmission buffer , non circular*/
 uint8_t TransmitBuf[40];
 
-extern osMutexId_t LoggerMutexHandle;
+//extern osMutexId_t LoggerMutexHandle;
 extern osMessageQueueId_t LoggerQueueHandle;
 extern osSemaphoreId_t LoggerSemHandle;
 
@@ -34,8 +34,6 @@ uint8_t LoggerSend(const char *str, uint8_t len,LogType type) {
   if(type>LOG_DATA)
     type=LOG_UNKNOWN;
   msg.type=type;
-  if(osMutexAcquire(LoggerMutexHandle,0)!=osOK)
-    return 1;
   if(len<=QUEUE_MAX_SIZE)
     msg.size=len;
   else
@@ -43,29 +41,20 @@ uint8_t LoggerSend(const char *str, uint8_t len,LogType type) {
   memcpy(&msg.payload,str,msg.size);
   if(osMessageQueuePut(LoggerQueueHandle,&msg,0,0)!=osOK)
     return 1;
-  osMutexRelease(LoggerMutexHandle);
   return 0; 
 
 }
 
 /** @brief: function to transmit a single message */
 void LoggerTransmit(void){
-  if(osSemaphoreAcquire(LoggerSemHandle,0)==osOK){
-    if(osMessageQueueGetCount(LoggerQueueHandle)){
-      if(osMutexAcquire(LoggerMutexHandle,0)==osOK){
-        LogDesctiptor msg;
-        osMessageQueueGet(LoggerQueueHandle,&msg,NULL,0);
-        memcpy(TransmitBuf,logPrefix[msg.type],PREFIX_SIZE);
-        memcpy((TransmitBuf+PREFIX_SIZE),&msg.payload,msg.size);
-        BSP_LoggerTransmit(TransmitBuf,PREFIX_SIZE+msg.size);
-        osSemaphoreRelease(LoggerSemHandle);
-        osMutexRelease(LoggerMutexHandle);
-      }
-      else
-        osSemaphoreRelease(LoggerSemHandle);
+  if(osMessageQueueGetCount(LoggerQueueHandle)){
+    if(osSemaphoreAcquire(LoggerSemHandle,0)==osOK){
+      LogDesctiptor msg;
+      osMessageQueueGet(LoggerQueueHandle,&msg,NULL,0);
+      memcpy(TransmitBuf,logPrefix[msg.type],PREFIX_SIZE);
+      memcpy((TransmitBuf+PREFIX_SIZE),&msg.payload,msg.size);
+      BSP_LoggerTransmit(TransmitBuf,PREFIX_SIZE+msg.size);
     }
-    else
-      osSemaphoreRelease(LoggerSemHandle);
   }
 }
 
